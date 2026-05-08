@@ -1,4 +1,11 @@
 # 🔍 Graph Algorithm Visualizer
+![JavaScript](https://img.shields.io/badge/JavaScript-Vanilla-yellow?logo=javascript)
+![SVG](https://img.shields.io/badge/Rendering-SVG-orange)
+![Dijkstra](https://img.shields.io/badge/Algorithm-Dijkstra-blue)
+![Bellman-Ford](https://img.shields.io/badge/Algorithm-Bellman--Ford-blueviolet)
+![Prim](https://img.shields.io/badge/Algorithm-Prim-darkgreen)
+![Kruskal](https://img.shields.io/badge/Algorithm-Kruskal-red)
+![License](https://img.shields.io/badge/License-MIT-yellow)
 
 An interactive visualizer for four fundamental graph algorithms with step-by-step execution control. Built with vanilla HTML, CSS, and JavaScript — no frameworks or dependencies.
 
