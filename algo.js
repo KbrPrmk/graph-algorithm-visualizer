@@ -1,5 +1,3 @@
-// 24100011828 - Kübra Parmak
-
 // Graf verisi
 let nodes   = [];   // { id, x, y, label } 
 let edges   = [];   // { id, from, to, weight } 
