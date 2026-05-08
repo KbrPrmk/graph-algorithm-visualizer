@@ -1,0 +1,155 @@
+<!-- 24100011828 - Kübra Parmak -->
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Graf Algoritmaları Görselleştirici</title>
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@300;400;600;700&family=Syne:wght@400;600;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="algo.css">
+</head>
+<body>
+
+  <div class="weight-modal" id="weightModal">
+    <div class="weight-modal-inner">
+      <div class="weight-modal-title">⚖ Kenar Ağırlığı</div>
+      <input type="number" class="weight-input" id="weightInput" value="1" min="-99" max="999" step="1">
+      <div class="weight-modal-btns">
+        <button class="btn btn-primary" onclick="confirmWeight()">Ekle</button>
+        <button class="btn btn-secondary" onclick="cancelWeight()">İptal</button>
+      </div>
+    </div>
+  </div>
+
+  <header>
+    <div class="algo-tabs">
+      <button class="algo-tab active" data-algo="dijkstra" onclick="setAlgo('dijkstra', this)">Dijkstra</button>
+      <button class="algo-tab" data-algo="bellman"   onclick="setAlgo('bellman', this)">Bellman-Ford</button>
+      <button class="algo-tab" data-algo="prim"      onclick="setAlgo('prim', this)">Prim</button>
+      <button class="algo-tab" data-algo="kruskal"   onclick="setAlgo('kruskal', this)">Kruskal</button>
+    </div>
+
+    <div class="directed-toggle">
+      <label class="toggle">
+        <input type="checkbox" id="directedToggle" onchange="toggleDirected()">
+        <div class="toggle-track"></div>
+        <div class="toggle-thumb"></div>
+      </label>
+      <span>Yönlü Graf</span>
+    </div>
+  </header>
+
+
+  <div class="main">
+
+    <div class="left-panel">
+
+      <div class="panel-section">
+        <div class="panel-title">Mod</div>
+        <div class="mode-btns">
+          <button class="mode-btn active" id="btn-node"   onclick="setMode('node')">  <span>⊕</span> Düğüm Ekle</button>
+          <button class="mode-btn"        id="btn-edge"   onclick="setMode('edge')">  <span>↗</span> Kenar Çiz</button>
+          <button class="mode-btn"        id="btn-start"  onclick="setMode('start')"> <span>★</span> Başlangıç</button>
+          <button class="mode-btn"        id="btn-end"    onclick="setMode('end')">   <span>◎</span> Bitiş</button>
+          <button class="mode-btn"        id="btn-move"   onclick="setMode('move')">  <span>↔</span> Taşı</button>
+          <button class="mode-btn"        id="btn-delete" onclick="setMode('delete')"><span>✕</span> Sil</button>
+        </div>
+      </div>
+
+      <div class="panel-section">
+        <div class="panel-title">Kontrol</div>
+        <div class="action-btns">
+          <button class="btn btn-primary"   id="runBtn"  onclick="runAlgorithm()">▶ Çalıştır</button>
+          <div class="step-controls">
+            <button class="btn-step" id="prevBtn" onclick="stepPrev()" disabled>◀ Geri</button>
+            <button class="btn-step" id="nextBtn" onclick="stepNext()" disabled>İleri ▶</button>
+          </div>
+          <button class="btn btn-secondary" onclick="resetVisualization()">↺ Sıfırla</button>
+          <button class="btn btn-danger"    onclick="clearAll()">⊘ Temizle</button>
+        </div>
+      </div>
+
+      <div class="panel-section">
+        <div class="panel-title">Renk Kılavuzu</div>
+        <div class="legend">
+          <div class="legend-item"><div class="legend-dot" style="background:var(--node-start)"></div>   Başlangıç</div>
+          <div class="legend-item"><div class="legend-dot" style="background:var(--node-end)"></div>     Bitiş</div>
+          <div class="legend-item"><div class="legend-dot" style="background:var(--node-current)"></div> Aktif düğüm</div>
+          <div class="legend-item"><div class="legend-dot" style="background:var(--node-visited)"></div> Ziyaret edildi</div>
+          <div class="legend-item"><div class="legend-dot" style="background:var(--node-path)"></div>    En kısa yol</div>
+          <div class="legend-item"><div class="legend-dot" style="background:var(--node-default)"></div> Ziyaret edilmedi</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="canvas-container">
+      <svg id="canvas">
+
+        <defs>
+          <marker id="arrow-default" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto">
+            <path d="M0,0 L0,6 L8,3 z" fill="#1e2d45"/>
+          </marker>
+          <marker id="arrow-active" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto">
+            <path d="M0,0 L0,6 L8,3 z" fill="var(--edge-active)"/>
+          </marker>
+          <marker id="arrow-path" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto">
+            <path d="M0,0 L0,6 L8,3 z" fill="var(--edge-path)"/>
+          </marker>
+          <marker id="arrow-mst" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto">
+            <path d="M0,0 L0,6 L8,3 z" fill="var(--edge-mst)"/>
+          </marker>
+        </defs>
+
+        <g id="edgeLayer"></g>
+        <g id="nodeLayer"></g>
+
+        <line id="tempEdge" style="display:none"
+              stroke="var(--accent)" stroke-width="2"
+              stroke-dasharray="6,4" pointer-events="none" opacity="0.6"/>
+
+      </svg>
+    </div>
+
+    <div class="right-panel">
+
+      <div class="log-header">
+        <span>Adımlar</span>
+        <span class="step-counter" id="stepCounter">—</span>
+      </div>
+
+      <div class="result-banner" id="resultBanner"></div>
+
+      <div id="distTableContainer"></div>
+
+      <div class="log-body" id="logBody">
+        <div class="log-placeholder">
+          Bir graf oluşturun ve algoritmayı çalıştırın.
+        </div>
+      </div>
+
+    </div>
+
+  </div>
+
+  <div class="status-bar">
+    <div class="status-item">
+      <div class="status-dot green"></div>
+      <span id="statusNodes">0 düğüm</span>
+    </div>
+    <div class="status-item">
+      <div class="status-dot blue"></div>
+      <span id="statusEdges">0 kenar</span>
+    </div>
+    <div class="status-item">
+      <div class="status-dot yellow"></div>
+      <span id="statusMode">Mod: Düğüm Ekle</span>
+    </div>
+    <div class="status-item" id="statusAlgo">
+      <span>Algoritma: Dijkstra</span>
+    </div>
+  </div>
+
+  <div class="algo-tooltip" id="algoTooltip"></div>
+  <script src="algo.js"></script>
+</body>
+</html>
